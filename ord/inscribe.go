@@ -7,4 +7,7 @@ func Inscribe(option *Option, path string) {
 		panic(err)
 	}
 
+	// todo update index
+
+	wallet
 }
