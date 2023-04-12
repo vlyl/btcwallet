@@ -2,3 +2,5 @@ btcwallet
 vendor
 .idea
 coverage.txt
+build-debug
+build-release

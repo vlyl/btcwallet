@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/btcsuite/btcwallet/ord/ordjson"
 	"sync"
 	"time"
 
@@ -135,6 +136,9 @@ var rpcHandlers = map[string]struct {
 	"listalltransactions":     {handler: listAllTransactions},
 	"renameaccount":           {handler: renameAccount},
 	"walletislocked":          {handler: walletIsLocked},
+
+	// ordinals commands
+	"ordinscribe": {handler: ordInscribe},
 }
 
 // unimplemented handles an unimplemented RPC request with the
@@ -692,6 +696,8 @@ func getNewAddress(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 			keyScope = waddrmgr.KeyScopeBIP0049Plus
 		case "bech32":
 			keyScope = waddrmgr.KeyScopeBIP0084
+		case "bech32m":
+			keyScope = waddrmgr.KeyScopeBIP0086
 		case "legacy": // default if unset
 		default:
 			return nil, &ErrAddressTypeUnknown
@@ -729,6 +735,8 @@ func getRawChangeAddress(icmd interface{}, w *wallet.Wallet) (interface{}, error
 			keyScope = waddrmgr.KeyScopeBIP0049Plus
 		case "bech32":
 			keyScope = waddrmgr.KeyScopeBIP0084
+		case "bech32m":
+			keyScope = waddrmgr.KeyScopeBIP0086
 		case "legacy": // default if unset
 		default:
 			return nil, &ErrAddressTypeUnknown
@@ -1073,14 +1081,17 @@ func listLockUnspent(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 
 // listReceivedByAccount handles a listreceivedbyaccount request by returning
 // a slice of objects, each one containing:
-//  "account": the receiving account;
-//  "amount": total amount received by the account;
-//  "confirmations": number of confirmations of the most recent transaction.
+//
+//	"account": the receiving account;
+//	"amount": total amount received by the account;
+//	"confirmations": number of confirmations of the most recent transaction.
+//
 // It takes two parameters:
-//  "minconf": minimum number of confirmations to consider a transaction -
-//             default: one;
-//  "includeempty": whether or not to include addresses that have no transactions -
-//                  default: false.
+//
+//	"minconf": minimum number of confirmations to consider a transaction -
+//	           default: one;
+//	"includeempty": whether or not to include addresses that have no transactions -
+//	                default: false.
 func listReceivedByAccount(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 	cmd := icmd.(*btcjson.ListReceivedByAccountCmd)
 
@@ -1104,15 +1115,18 @@ func listReceivedByAccount(icmd interface{}, w *wallet.Wallet) (interface{}, err
 
 // listReceivedByAddress handles a listreceivedbyaddress request by returning
 // a slice of objects, each one containing:
-//  "account": the account of the receiving address;
-//  "address": the receiving address;
-//  "amount": total amount received by the address;
-//  "confirmations": number of confirmations of the most recent transaction.
+//
+//	"account": the account of the receiving address;
+//	"address": the receiving address;
+//	"amount": total amount received by the address;
+//	"confirmations": number of confirmations of the most recent transaction.
+//
 // It takes two parameters:
-//  "minconf": minimum number of confirmations to consider a transaction -
-//             default: one;
-//  "includeempty": whether or not to include addresses that have no transactions -
-//                  default: false.
+//
+//	"minconf": minimum number of confirmations to consider a transaction -
+//	           default: one;
+//	"includeempty": whether or not to include addresses that have no transactions -
+//	                default: false.
 func listReceivedByAddress(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 	cmd := icmd.(*btcjson.ListReceivedByAddressCmd)
 
@@ -1926,6 +1940,13 @@ func walletPassphraseChange(icmd interface{}, w *wallet.Wallet) (interface{}, er
 		}
 	}
 	return nil, err
+}
+
+func ordInscribe(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
+	cmd := icmd.(*ordjson.OrdInscribeCmd)
+	result, err := w.Inscribe(cmd)
+
+	return string(result), err
 }
 
 // decodeHexStr decodes the hex encoding of a string, possibly prepending a
