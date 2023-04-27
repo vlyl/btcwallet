@@ -4,7 +4,9 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 )
 
-type Option struct {
+// Config equals to Option struct in origin rust version ord
+// In golang, we usually use Config to instead of Option
+type Config struct {
 	ChainParam             chaincfg.Params
 	BitcoinDataDir         string // Load Bitcoin Core data dir from <BITCOIN_DATA_DIR>
 	Config                 string // Load configuration from <CONFIG>

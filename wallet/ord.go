@@ -6,6 +6,11 @@ import (
 )
 
 func (w *Wallet) Inscribe(cmd *ordjson.OrdInscribeCmd) ([]byte, error) {
-	w.UnspentOutputs()
+	utxos, err := w.UnspentOutputs()
+	if err != nil {
+		log.Error("Inscribe: UnspentOutputs error: ", err)
+		return nil, err
+	}
+
 	wire.NewTxIn()
 }

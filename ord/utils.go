@@ -50,3 +50,5 @@ func FileExist(f string) bool {
 	_, err := os.Stat(f)
 	return !os.IsNotExist(err)
 }
+
+type FeeRate uint64
